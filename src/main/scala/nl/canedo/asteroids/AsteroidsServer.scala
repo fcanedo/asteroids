@@ -1,7 +1,6 @@
 package nl.canedo.asteroids
 
 import cats.effect.Async
-import cats.syntax.all._
 import com.comcast.ip4s._
 import fs2.io.net.Network
 import org.http4s.ember.client.EmberClientBuilder
@@ -11,25 +10,21 @@ import org.http4s.server.middleware.Logger
 
 object AsteroidsServer {
 
-  def run[F[_]: Async: Network]: F[Nothing] = {
+  def run[F[_] : Async : Network]: F[Nothing] = {
     for {
       client <- EmberClientBuilder.default[F].build
-      helloWorldAlg = HelloWorld.impl[F]
-      jokeAlg = Jokes.impl[F](client)
+      asteroidsAlg = Asteroids.impl[F](client)
 
       // Combine Service Routes into an HttpApp.
       // Can also be done via a Router if you
       // want to extract segments not checked
       // in the underlying routes.
-      httpApp = (
-        AsteroidsRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
-        AsteroidsRoutes.jokeRoutes[F](jokeAlg)
-      ).orNotFound
+      httpApp = AsteroidsRoutes.routes(asteroidsAlg).orNotFound
 
       // With Middlewares in place
       finalHttpApp = Logger.httpApp(true, true)(httpApp)
 
-      _ <- 
+      _ <-
         EmberServerBuilder.default[F]
           .withHost(ipv4"0.0.0.0")
           .withPort(port"8080")

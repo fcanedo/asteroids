@@ -15,13 +15,8 @@ object AsteroidsServer {
       client <- EmberClientBuilder.default[F].build
       asteroidsAlg = Asteroids.impl[F](client)
 
-      // Combine Service Routes into an HttpApp.
-      // Can also be done via a Router if you
-      // want to extract segments not checked
-      // in the underlying routes.
       httpApp = AsteroidsRoutes.routes(asteroidsAlg).orNotFound
 
-      // With Middlewares in place
       finalHttpApp = Logger.httpApp(true, true)(httpApp)
 
       _ <-

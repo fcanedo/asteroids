@@ -14,12 +14,16 @@ class AsteroidsSpec extends CatsEffectSuite {
   }
 
   test("asteroids returns the asteroid") {
-    val obtained = retAsteroids(Response[IO](status = Status.Ok).withEntity(AsteroidData(1, Map("2015-09-08" -> List(Asteroid("12345", "Sagittarius A*"))))))
+    val obtained = retAsteroids(Response[IO](status = Status.Ok)
+      .withEntity(AsteroidData(1, Map("2015-09-08" -> List(Asteroid("12345", "Sagittarius A*"))))))
     assertIO(obtained.flatMap(_.as[String]), """[{"id":"12345","name":"Sagittarius A*"}]""")
   }
 
   test("asteroids returns the asteroids") {
-    val obtained = retAsteroids(Response[IO](status = Status.Ok).withEntity(AsteroidData(2, Map("2015-09-08" -> List(Asteroid("12345", "Sagittarius A*")), "2015-09-09" -> List(Asteroid("12346", "Apophis"))))))
+    val obtained = retAsteroids(Response[IO](status = Status.Ok)
+      .withEntity(AsteroidData(2,
+        Map("2015-09-08" -> List(Asteroid("12345", "Sagittarius A*")), "2015-09-09" -> List(Asteroid("12346", "Apophis"))))
+      ))
     assertIO(obtained.flatMap(_.as[List[Asteroid]].map(_.map(_.id))), List("12346", "12345"))
 
   }

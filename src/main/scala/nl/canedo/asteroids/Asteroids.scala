@@ -25,7 +25,6 @@ object Asteroids {
 
   implicit val customCirceConfiguration: Configuration = Configuration.default.withSnakeCaseMemberNames
 
-
   final case class AsteroidData(elementCount: Int, nearEarthObjects: Map[String, List[Asteroid]])
 
   object AsteroidData {

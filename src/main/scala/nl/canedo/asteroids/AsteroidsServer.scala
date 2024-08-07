@@ -4,7 +4,6 @@ import cats.effect.{Async, Resource, Sync}
 import cats.syntax.all._
 import com.comcast.ip4s._
 import fs2.io.net.Network
-import nl.canedo.asteroids.db.Favs
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.implicits._
@@ -14,11 +13,12 @@ import slick.jdbc.PostgresProfile.backend
 
 object AsteroidsServer {
 
-  def getDB[F[_] :Async](implicit F: Sync[F]): Resource[F, backend.JdbcDatabaseDef] = {
+  def getDB[F[_] :Async]: Resource[F, backend.JdbcDatabaseDef] = {
+    val sync = Sync[F]
     Resource.make {
-      F.blocking(Database.forConfig("postgres"))
+      sync.blocking(Database.forConfig("postgres"))
     }{ db =>
-      F.blocking(db.close())
+      sync.blocking(db.close())
     }
   }
 
@@ -26,7 +26,6 @@ object AsteroidsServer {
     for {
       client <- EmberClientBuilder.default[F].build
       db <- getDB
-      _ = db.run(Favs.favourites.result)
       favourites = Favourites.impl[F](db)
       asteroidsAlg = Asteroids.impl[F](client)
 
